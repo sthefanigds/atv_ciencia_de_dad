@@ -1,0 +1,28 @@
+install.packages("rbcb")
+library(rbcb)
+install.packages('tidyverse')
+library(ggrepel)
+ipca = list('IPCA' = 433)
+ipca = get_series(ipca, start_date = '2022-06-30') 
+ipca12M = ipca %>%
+  library(dplyr)
+library(zoo)
+
+ipca12M <- ipca %>%
+  mutate(across(-date, ~ 1 + . / 100)) %>%
+  mutate(across(-date, ~ (zoo::rollapply(.x, width = 12, FUN = function(x) prod(1 + x) - 1, fill = NA, align = "right")) * 100))
+tail(ipca12M) 
+ipca %>%
+  ggplot(aes(x = date, y = IPCA))+ #eixo x e y
+  geom_line(col = 'darkblue', size = 1)+ #grafico linha
+  theme_light()+ #tema do grafico
+  labs(title = 'IPCA mensal %')+ #titulo grafico
+  geom_label_repel(label = round(tail(ipca$IPCA,1),2), #incluindo o valor na img
+                   nudge_x = 1,
+                   nudge_y = 0,
+                   data = tail(ipca,1),
+                   color ='white',
+                   fill = 'red')
+
+
+head(ipca)
